@@ -48,7 +48,7 @@ macro_rules! main {
 
                 match module_name.as_ref() {
                     $(stringify!($day) => {
-                        let data = INPUTS[day as usize];
+                        let data = INPUTS[day as usize -1];
 
                         let (gen_elapsed, input) = time(&|| $day::generator(&data));
                         let (p1_elapsed, p1_result) = time(&|| $day::part1(&input)); 
@@ -71,7 +71,6 @@ macro_rules! main {
 
 main! {
     implemented_days: [
-        day0,
         day1,
         // day2,
         // day3,
