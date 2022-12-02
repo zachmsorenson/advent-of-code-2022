@@ -72,7 +72,7 @@ macro_rules! main {
 main! {
     implemented_days: [
         day1,
-        // day2,
+        day2,
         // day3,
         // day4,
         // day5,
