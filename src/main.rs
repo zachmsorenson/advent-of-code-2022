@@ -41,6 +41,12 @@ macro_rules! main {
                 None => DAYS.iter().map(|s| s[3..].parse().expect("Defaulting to all days")).collect()
             };
 
+            let all_days = days.len() > 1;
+
+            let mut gen_total = Duration::from_secs(0);
+            let mut p1_total = Duration::from_secs(0);
+            let mut p2_total = Duration::from_secs(0);
+            let mut total_elapsed = Duration::from_secs(0);
             for day in days.into_iter() {
                 let module_name = format!("day{}", day);
 
@@ -60,10 +66,22 @@ macro_rules! main {
                         println!("   |Part 1 :  {}| Output: {}", format!("({:.2?})", p1_elapsed), p1_result);
                         println!("   |Part 2 :  {}| Output: {}", format!("({:.2?})", p2_elapsed), p2_result);
 
-                        println!()
+                        println!();
+
+                        gen_total += gen_elapsed;
+                        p1_total += p1_elapsed;
+                        p2_total += p2_elapsed;
+                        total_elapsed += gen_elapsed + p1_elapsed + p2_elapsed;
                     },)+
                     _ => unreachable!()
                 }
+            }
+
+            if all_days {
+                println!("Total Time: {}", format!("({:.2?})", total_elapsed));
+                println!("   |Generator {}|",  format!("({:.2?})", gen_total));
+                println!("   |Part 1 :  {}|", format!("({:.2?})", p1_total));
+                println!("   |Part 2 :  {}|", format!("({:.2?})", p2_total));
             }
         }
     }
