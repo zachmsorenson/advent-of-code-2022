@@ -1,6 +1,5 @@
 
 pub fn generator(input: &str) -> Vec<&str> {
-    // let mut values = Vec::new();
     input.lines().into_iter().collect()
 }
 

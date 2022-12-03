@@ -1,10 +1,6 @@
 
 pub fn generator(input: &str) -> Vec<&str> {
-    let mut values = Vec::new();
-    for line in input.lines().into_iter() {
-        values.push(line);
-    }
-    values
+    input.lines().into_iter().collect()
 }
 
 pub fn part1(input: &[&str]) -> i32 {
