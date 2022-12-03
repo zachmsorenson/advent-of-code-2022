@@ -10,11 +10,10 @@ pub fn part1(input: &[&str]) -> u32 {
     for line in input {
         let n = line.len()/2;
         let bytes = line.as_bytes();
-        let (mut a, mut b) = (HashSet::new(), HashSet::new());
-        for i in 0..n {
-            a.insert(bytes[i]);
-            b.insert(bytes[i+n]);
-        }
+        let (a, b) = (&bytes[0..n], &bytes[n..n*2]);
+        let a = HashSet::<_>::from_iter(a.iter().cloned());
+        let b = HashSet::<_>::from_iter(b.iter().cloned());
+
         let &c = a.intersection(&b).next().unwrap();
         sum += match c as char {
             'a'..='z' => c - 'a' as u8 + 1,
