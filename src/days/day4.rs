@@ -4,20 +4,21 @@ pub fn generator(input: &str) -> Vec<i32> {
     let mut b = input.as_bytes().into_iter();
     let mut num = 0;
     loop {
-        let &c = match b.next() {
-            Some(v) => v,
-            None => break
-        };
-        match c as char {
-            '0'..='9' => {
-                num = num * 10 + c as i32 - '0' as i32
+        match b.next() {
+            Some(&c) => {
+                match c {
+                    b'0'..=b'9' => {
+                        num = num * 10 + c as i32 - '0' as i32
+                    },
+                    b',' | b'-' | b'\n' => {
+                        values.push(num);
+                        num = 0;
+                    },
+                    _ => unreachable!()
+                }
             },
-            ',' | '-' | '\n' => {
-                values.push(num);
-                num = 0;
-            },
-            _ => {
-                unreachable!();
+            None => {
+                break;
             },
         }
     }
