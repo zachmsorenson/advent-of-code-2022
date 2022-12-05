@@ -7,33 +7,25 @@ pub struct Input {
 
 impl Input {
     fn init(instructions: Vec<usize>) -> Input {
-        return Input {
-            stacks: vec![
-                vec!['G', 'W', 'L', 'J', 'B', 'R', 'T', 'D'],
-                vec!['C', 'W', 'S'],
-                vec!['M', 'T', 'Z', 'R'],
-                vec!['V', 'P', 'S', 'H', 'C', 'T', 'D'],
-                vec!['Z', 'D', 'L', 'T', 'P', 'G'],
-                vec!['D', 'C', 'Q', 'J', 'Z', 'R', 'B', 'F'],
-                vec!['R', 'T', 'F', 'M', 'J', 'D', 'B', 'S'],
-                vec!['M', 'V', 'T', 'B', 'R', 'H', 'L'],
-                vec!['V', 'S', 'D', 'P'],
-            ],
+        let mut input = Input {
+            stacks: vec![],
             instructions: instructions,
         };
+        input.reset();
+        input
     }
 
     fn reset(&mut self) {
         self.stacks = vec![
-            vec!['G', 'W', 'L', 'J', 'B', 'R', 'T', 'D'],
-            vec!['C', 'W', 'S'],
-            vec!['M', 'T', 'Z', 'R'],
-            vec!['V', 'P', 'S', 'H', 'C', 'T', 'D'],
-            vec!['Z', 'D', 'L', 'T', 'P', 'G'],
-            vec!['D', 'C', 'Q', 'J', 'Z', 'R', 'B', 'F'],
-            vec!['R', 'T', 'F', 'M', 'J', 'D', 'B', 'S'],
-            vec!['M', 'V', 'T', 'B', 'R', 'H', 'L'],
-            vec!['V', 'S', 'D', 'P'],
+            vec!['D', 'T', 'R', 'B', 'J', 'L', 'W', 'G'],
+            vec!['S', 'W', 'C'],
+            vec!['R', 'Z', 'T', 'M'],
+            vec!['D', 'T', 'C', 'H', 'S', 'P', 'V'],
+            vec!['G', 'P', 'T', 'L', 'D', 'Z'],
+            vec!['F', 'B', 'R', 'Z', 'J', 'Q', 'C', 'D'],
+            vec!['S', 'B', 'D', 'J', 'M', 'F', 'T', 'R'],
+            vec!['L', 'H', 'R', 'B', 'T', 'V', 'M'],
+            vec!['Q', 'P', 'D', 'S', 'V'],
         ]
     }
 }
@@ -48,34 +40,62 @@ pub fn generator(input: &str) -> Input {
                 num = num * 10 + c as usize - b'0' as usize;
             },
             _ => {
-                instructions.push(num);
-                num = 0;
+                if num > 0 {
+                    instructions.push(num);
+                    num = 0;
+                }
             },
         }
     }
+    instructions.push(num);
 
     return Input::init(instructions);
 }
 
-pub fn part1(input: &Input) -> Vec<char> {
-    let mut stacks = &input.stacks;
+pub fn part1(input: &Input) -> String {
+    let mut stacks = input.stacks.clone();
     let instructions = &input.instructions;
     let n = input.instructions.len();
     let mut i = 0;
     while i < n {
         let mut amount = instructions[i];
-        let src = instructions[i+1];
-        let dst = instructions[i+2];
+        let src = instructions[i + 1] - 1;
+        let dst = instructions[i + 2] - 1;
 
         while amount > 0 {
-            let c = stacks[src-1].pop().unwrap();
-            stacks[src-1].push(c);
+            match stacks[src].pop() {
+                Some(c) => {
+                    stacks[dst].push(c);
+                },
+                None => unreachable!()
+            };
+            amount -= 1;
         }
+
+        i += 3;
     }
 
-    return stringify![stacks.iter().map(|s| *s.last().unwrap())];
+    return stacks.iter().map(|s| s.last().unwrap()).cloned().collect()
 }
 
-pub fn part2(input: &Input) -> i32 {
-    -1
+pub fn part2(input: &Input) -> String {
+    let mut stacks = input.stacks.clone();
+    let instructions = &input.instructions;
+    let n = input.instructions.len();
+    let mut i = 0;
+    while i < n {
+        let amount = instructions[i];
+        let src = instructions[i + 1] - 1;
+        let dst = instructions[i + 2] - 1;
+
+        let src_n = stacks[src].len();
+        let src_slice = stacks[src].drain(src_n - amount..);
+        let mut new: Vec<char> = src_slice.collect();
+
+        stacks[dst].append(&mut new);
+
+        i += 3;
+    }
+    
+    return stacks.iter().map(|s| s.last().unwrap()).cloned().collect()
 }
