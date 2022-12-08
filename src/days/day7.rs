@@ -1,146 +1,177 @@
+use std::{rc::Rc, cell::RefCell, collections::VecDeque};
 
-// #[derive(PartialEq)]
-// enum Filetype {
-//     File,
-//     Directory
-// }
 
-// struct File<'a> {
-//     filetype: Filetype,
-//     parent: Option<&'a File<'a>>,
-//     children: Option<Vec<File<'a>>>
-// }
+fn calculate_size(f: &Rc<RefCell<File>>) -> u32 {
+    let f = f.borrow();
 
-// impl<'a> File<'a> {
-//     fn new(_filetype: Filetype, _parent: Option<&'a File<'a>>) -> File<'a> {
-//         let mut children = None;
-//         if _filetype == Filetype::Directory {
-//             children = Some(Vec::<File>::new());
-//         }
-//         let mut new = File {
-//             filetype: _filetype,
-//             parent: _parent,
-//             children: children,
-//         };
+    if !f.is_dir {
+        return f.size
+    }
 
-//         new
-//     }
-// }
+    let mut sum = 0;
+    for child in f.children.as_ref().unwrap() {
+        let size;
+        {
+            size = calculate_size(child);
+        }
 
-// struct Filesystem<'a> {
-//     head: &'a File<'a>,
-//     cwd: &'a File<'a>,
-// }
+        let mut borrow = child.borrow_mut();
+        if borrow.size == 0 {
+            borrow.size = size;
+        }
 
-// impl<'a> Filesystem<'static> {
-//     fn init() -> Filesystem<'a> {
-//         let root = File {
-//             filetype: Filetype::Directory,
-//             parent: None,
-//             children: Some(Vec::<File>::new()),
-//         };
+        sum += size;
+    }
+    sum
+}
 
-//         let filesystem = Filesystem{head: &root, cwd: &root};
-//         filesystem
-//     }
-// }
-
-struct File<'a> {
+pub struct File {
     name: String,
     is_dir: bool,
     size: u32,
-    parent: Option<&'a File<'a>>,
-    children: Option<Vec<&'a File<'a>>>,
+    children: Option<Vec<Rc<RefCell<File>>>>,
 }
 
-enum Command {
-    Cd,
-    Ls,
-    File,
-    Dir,
-}
+pub fn generator(input: &str) -> Rc<RefCell<File>> {
+    let root = File {
+        name: "/".to_string(),
+        is_dir: true,
+        size: 0,
+        children: Some(Vec::new()),
+    };
+    let root = Rc::new(RefCell::new(root));
 
-pub struct Line {
-    command: Command,
-    arg: Option<String>,
-    name: Option<String>,
-}
+    let mut curr_path: Vec<Rc<RefCell<File>>> = vec![root];
 
-pub fn generator(input: &str) -> Vec<Line> {
-    let mut lines = Vec::<Line>::new();
-    for line in input.lines().into_iter() {
-        let v: Vec<&str> = line.split(' ').collect();
+    let input: Vec<&str> = input.lines().collect();
+    for &line in input.iter().skip(1) {
+        let args: Vec<&str> = line.split(' ').collect();
 
-        if v.len() == 3 {
-            lines.push(Line {
-                command: Command::Cd,
-                arg: Some(v[2].to_string()),
-                name: None,
-            });
-        } else {
-            match v[0] {
-                "$" => {
-                    lines.push(Line {
-                        command: Command::Ls,
-                        arg: None,
-                        name: None,
-                    });
-                },
-                "dir" => {
-                    lines.push(Line {
-                        command: Command::Dir,
-                        arg: None,
-                        name: Some(v[1].to_string()),
-                    });
-                },
-                _ => {
-                    lines.push(Line {
-                        command: Command::File,
-                        arg: Some(v[0].to_string()),
-                        name: Some(v[1].to_string()),
-                    });
-                },
+        match args[0] {
+            "$" => {
+                match args[1] {
+                    "cd" => {
+                        match args[2] {
+                            ".." => {
+                                // cd ..
+                                curr_path.pop();
+                            },
+                            _ => {
+                                // cd some_dir
+                                let f = curr_path.last().cloned().unwrap();
+                                let borrow = f.borrow();
+                
+                                match borrow.children.as_ref() {
+                                    Some(v) => {
+                                        let f = v.iter()
+                                         .find(|&c| c.borrow_mut().name == args[2].to_string())
+                                         .unwrap();
+
+                                        curr_path.push(f.clone());
+
+                                    },
+                                    _ => unreachable!(),
+                                };
+                                drop(borrow);
+                            }
+                        }
+                    },
+                    "ls" => {
+                        
+                    },
+                    _ => unreachable!()
+                }
+            },
+            "dir" => {
+                let f = curr_path.last().unwrap();
+                let mut borrow = f.borrow_mut();
+
+                let new_file = File {
+                    name: args[1].to_string(),
+                    is_dir: true,
+                    size: 0,
+                    children: Some(Vec::new()),
+                };
+
+                borrow.children.as_mut()
+                        .expect("")
+                        .push(Rc::new(RefCell::new(new_file)));
+                drop(borrow);
+            },
+            _ => {
+                let f = curr_path.last().unwrap();
+                let mut borrow = f.borrow_mut();
+
+                let new_file = File {
+                    name: args[1].to_string(),
+                    is_dir: false,
+                    size: args[0].parse().unwrap(),
+                    children: None,
+                };
+
+                borrow.children.as_mut()
+                        .expect("")
+                        .push(Rc::new(RefCell::new(new_file)));
+
+                drop(borrow);
             }
         }
     }
-    lines
+    let head = curr_path.first().unwrap();
+    let total = calculate_size(head);
+    head.borrow_mut().size = total;
+    head.clone()
 }
 
-pub fn part1(input: &[Line]) -> i32 {
-    let iter = input.iter();
+pub fn part1(head: &Rc<RefCell<File>>) -> u32 {
+    let mut sum = 0;
 
-    let mut root = File {
-        name: String::from("/"),
-        is_dir: true,
-        size: 0,
-        parent: None,
-        children: Some(Vec::new()),
-    };
+    let mut queue = VecDeque::new();
+    queue.push_back(head.clone());
 
-    let cwd = &root;
-    
-    let curr_path: Vec<String> = vec![root.name];
+    while let Some(next) = queue.pop_front() {
+        let f = next.borrow();
 
-    for line in iter {
-        match line.command {
-            Command::Cd => {
+        if f.is_dir {
+            if f.size <= 100000 {
+                sum += f.size;
+            }
 
-            },
-            Command::Ls => {
-
-            },
-            Command::File => {
-
-            },
-            Command::Dir => {
-
-            },
-            _ => unreachable!()
+            // let children = f.children.borrow();
+            if let Some(children) = &f.children {
+                for child in children {
+                    queue.push_back(child.clone());
+                }
+            }
         }
     }
-    -1
+    sum
 }
 
-pub fn part2(input: &[Line]) -> i32 {
-    -1
+pub fn part2(head: &Rc<RefCell<File>>) -> u32 {
+    let mut smallest = 70000000;
+    let size = head.borrow().size;
+    let required = 30000000 - (smallest - size);
+
+    let mut queue = VecDeque::new();
+    queue.push_back(head.clone());
+
+    while let Some(next) = queue.pop_front() {
+        let f = next.borrow();
+
+        if f.is_dir {
+            if f.size > required && f.size < smallest {
+                smallest = f.size;
+            }
+
+            // let children = f.children.borrow();
+            if let Some(children) = &f.children {
+                for child in children {
+                    queue.push_back(child.clone());
+                }
+            }
+        }
+    }
+
+    smallest
 }
