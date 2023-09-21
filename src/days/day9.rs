@@ -79,7 +79,7 @@ fn implementation(input: &[(i32, i32)], part2: bool) -> u32 {
         while value != 0 {
             for i in 0..knots.len() {
                 if i == 0 {
-                    let mut knot: &mut (i32, i32) = &mut knots[i];
+                    let knot: &mut (i32, i32) = &mut knots[i];
                     knot.0 += unit_move.0;
                     knot.1 += unit_move.1;
                 } else {

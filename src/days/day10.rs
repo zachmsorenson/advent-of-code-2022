@@ -1,8 +1,4 @@
 
-fn print_state(sum: i32, cycles: i32, counter: i32, reg: i32, command: &str, val: &str) {
-    println!("sum: {}, cycles: {}, counter: {}, reg: {}, command: {}, val: {}", sum, cycles, counter, reg, command, val)
-}
-
 pub fn generator(input: &str) -> &str {
     input
 }
@@ -47,7 +43,6 @@ pub fn part1(input: &str) -> i32 {
 }
 
 pub fn part2(input: &str) -> i32 {
-    let mut sum: i32 = 0;
     let mut pos: i32 = 0;
     let mut cycles: i32 = 1;
     let mut reg: i32 = 1;
@@ -93,12 +88,11 @@ pub fn part2(input: &str) -> i32 {
         }
     }
     for (i, c) in vec.iter().enumerate() {
-        if (i % 40 == 39) {
+        if i % 40 == 39 {
             println!("{}", c)
         } else {
             print!("{}", c)
         }
     }
-
-    sum
+    0
 }
