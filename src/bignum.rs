@@ -2,6 +2,9 @@
  * https://stackoverflow.com/questions/5318068/how-to-handle-very-large-numbers-in-java-without-using-java-math-biginteger
  */
 
+#![allow(dead_code)]
+#![allow(unused)]
+
 use std::fmt;
 use std::ops::{Add, Mul};
 use itertools::Itertools;

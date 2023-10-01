@@ -1,7 +1,4 @@
-use itertools::izip;
 use std::collections::VecDeque;
-
-use crate::bignum::BigNum;
 
 
 #[derive(Debug)]
@@ -14,16 +11,11 @@ pub enum Op {
 #[derive(Debug)]
 pub struct Operation {
     op: Op,
-    val: BigNum,
+    val: i64,
 }
 
 impl Operation {
-    pub fn operate(&self, n: BigNum) -> BigNum {
-        let sym = match self.op {
-            Op::Add => "Add",
-            Op::Mul => "Mul",
-            Op::Pow => "Pow",
-        };
+    pub fn operate(&self, n: i64) -> i64 {
         let res = match self.op {
             Op::Add => self.val + n,
             Op::Mul => self.val * n,
@@ -35,7 +27,7 @@ impl Operation {
 
 #[derive(Debug)]
 pub struct Monkey {
-    items: Vec<BigNum>,
+    items: Vec<i64>,
     operation: Operation,
     divisor: i64,
     dst_true: i64,
@@ -47,7 +39,7 @@ pub fn generator(input: &str) -> Vec::<Monkey> {
 
     let mut vec = Vec::<Monkey>::new();
         
-    let mut starting_items: Vec::<BigNum> = Vec::<BigNum>::new();
+    let mut starting_items: Vec::<i64> = Vec::<i64>::new();
     let mut op: Operation = Operation{
         op: Op::Add, 
         val: 0
@@ -78,20 +70,23 @@ pub fn generator(input: &str) -> Vec::<Monkey> {
                     ("+", val_str) =>  {
                         op = Operation{
                             op: Op::Add,
-                            val: BigNum::new(vec![val_str.parse().unwrap()]),
+                            val: val_str.parse().unwrap(),
+                            // val: BigNum::new(vec![val_str.parse().unwrap()]),
                         }
                     },
                     ("*", "old") => {
                         println!("pow function");
                         op = Operation{
                             op: Op::Pow,
-                            val: BigNum::new(vec![2]),
+                            val: 2,
+                            // val: BigNum::new(vec![2]),
                         }
                     },
                     ("*", val_str) => {
                         op = Operation{
                             op: Op::Mul,
-                            val: BigNum::new(vec![val_str.parse().unwrap()]),
+                            val: val_str.parse().unwrap(),
+                            // val: BigNum::new(vec![val_str.parse().unwrap()]),
                         }
                     },
                     _ => continue,
@@ -116,9 +111,9 @@ pub fn generator(input: &str) -> Vec::<Monkey> {
                 let new_monkey = Monkey{
                     items: starting_items,
                     operation: op,
-                    divisor: divisor,
-                    dst_true: dst_true,
-                    dst_false: dst_false,
+                    divisor,
+                    dst_true,
+                    dst_false,
                 };
                 vec.push(new_monkey);
             
@@ -136,9 +131,9 @@ pub fn generator(input: &str) -> Vec::<Monkey> {
     let new_monkey = Monkey{
         items: starting_items,
         operation: op,
-        divisor: divisor,
-        dst_true: dst_true,
-        dst_false: dst_false,
+        divisor,
+        dst_true,
+        dst_false,
     };
     vec.push(new_monkey);
     vec
@@ -146,7 +141,7 @@ pub fn generator(input: &str) -> Vec::<Monkey> {
 
 pub fn part1(input: &Vec<Monkey>) -> i64 {
     let mut monkey_counts: Vec::<i64> = Vec::new();
-    let mut monkey_items: Vec::<VecDeque::<BigNum>> = Vec::new();
+    let mut monkey_items: Vec::<VecDeque::<i64>> = Vec::new();
     for monkey in input {
         monkey_items.push(monkey.items.clone().into());
         monkey_counts.push(0)
@@ -180,7 +175,8 @@ pub fn part1(input: &Vec<Monkey>) -> i64 {
     }).iter().product()
 }
 
-pub fn part2(input: &Vec<Monkey>) -> i64 {
+pub fn part2(_input: &Vec<Monkey>) -> i64 {
+    /*
     let mut monkey_counts: Vec::<i64> = Vec::new();
     let mut monkey_items: Vec::<VecDeque::<i64>> = Vec::new();
     for monkey in input {
@@ -214,6 +210,8 @@ pub fn part2(input: &Vec<Monkey>) -> i64 {
             [acc[0], acc[1]]
         }
     }).iter().product()
+    */
+    -1
 }
 
 
