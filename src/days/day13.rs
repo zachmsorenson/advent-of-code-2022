@@ -81,11 +81,11 @@ pub fn part1(input: &Vec<Vec<Item>>) -> i32 {
                 (Item::Value(l_val), Item::Value(r_val)) => {
                     if l_val < r_val {
                         in_order = Some(true);
-                        println!("Break at {} < {}, result: {}", l_val, r_val, in_order.unwrap());
+                        // println!("Break at {} < {}, result: {}", l_val, r_val, in_order.unwrap());
                         break;
                     } else if r_val < l_val {
                         in_order = Some(false);
-                        println!("Break at {} > {}, result: {}", l_val, r_val, in_order.unwrap());
+                        // println!("Break at {} > {}, result: {}", l_val, r_val, in_order.unwrap());
                         break;
                     } else if l_depth != r_depth {
                         in_order = Some(l_depth < r_depth);
@@ -99,7 +99,7 @@ pub fn part1(input: &Vec<Vec<Item>>) -> i32 {
                     // Left side ran out of items.
                     if l_depth == r_depth {
                         in_order = Some(true);
-                        println!("Break at ] vs {:?}, result: {}", x, in_order.unwrap());
+                        // println!("Break at ] vs {:?}, result: {}", x, in_order.unwrap());
                         break;
                     } else {
                         l_depth -= 1;
@@ -110,7 +110,7 @@ pub fn part1(input: &Vec<Vec<Item>>) -> i32 {
                     // Right side ran out of items.
                     if l_depth == r_depth {
                         in_order = Some(false);
-                        println!("Break at {:?} vs ], result: {}", x, in_order.unwrap());
+                        // println!("Break at {:?} vs ], result: {}", x, in_order.unwrap());
                         break;
                     } else {
                         r_depth -= 1;
@@ -128,15 +128,15 @@ pub fn part1(input: &Vec<Vec<Item>>) -> i32 {
             }
         }
         if in_order.is_some() && in_order.unwrap() == true {
-            println!("{}", i);
+            // println!("{}", i);
             sum += i;
         } else if in_order.is_none() {
             panic!("No break at pair {}", i);
         }
-        println!("Pair[{}]: {}  |  sum: {}", i, in_order.unwrap(), sum);
-        println!("l_packet: {:?}", l_packet);
-        println!("r_packet: {:?}", r_packet);
-        println!("");
+        // println!("Pair[{}]: {}  |  sum: {}", i, in_order.unwrap(), sum);
+        // println!("l_packet: {:?}", l_packet);
+        // println!("r_packet: {:?}", r_packet);
+        // println!("");
         i += 1;
     }
     return sum;
