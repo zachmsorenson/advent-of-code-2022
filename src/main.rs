@@ -4,7 +4,7 @@ use std::time::Instant;
 pub mod days;
 use days::*;
 
-use clap::{Parser};
+use clap::Parser;
 
 #[derive(Parser)]
 struct Args {
@@ -19,8 +19,6 @@ fn time<T>(func: &dyn Fn() -> T) -> (Duration, T) {
 
     (start.elapsed(), result)
 }
-
-
 
 #[macro_export]
 macro_rules! main {
@@ -57,7 +55,7 @@ macro_rules! main {
                         let data = INPUTS[day as usize -1];
 
                         let (gen_elapsed, input) = time(&|| $day::generator(&data));
-                        let (p1_elapsed, p1_result) = time(&|| $day::part1(&input)); 
+                        let (p1_elapsed, p1_result) = time(&|| $day::part1(&input));
                         let (p2_elapsed, p2_result) = time(&|| $day::part2(&input));
 
                         let duration = format!("({:.2?})", gen_elapsed + p1_elapsed + p2_elapsed);
@@ -103,8 +101,8 @@ main! {
         day12,
         day13,
         day14,
-        // day15,
-        // day16,
+        day15,
+        day16,
         // day17,
         // day18,
         // day19,
